@@ -131,6 +131,20 @@
     }
     button.secondary:hover { background: rgba(233,69,96,0.1); }
 
+    /* Presets */
+    .presets { margin-bottom: 16px; }
+    .preset-grid { display: flex; flex-direction: column; gap: 8px; }
+    .preset-btn {
+      background: #1a1a2e; border: 1px solid #0f3460; border-radius: 8px;
+      padding: 12px 14px; cursor: pointer; display: flex; justify-content: space-between;
+      align-items: center; transition: border-color 0.2s, background 0.2s;
+    }
+    .preset-btn:hover { border-color: #e94560; background: rgba(233,69,96,0.05); }
+    .preset-btn .preset-info { display: flex; flex-direction: column; gap: 2px; }
+    .preset-btn .preset-size { color: #fff; font-weight: 600; font-size: 0.95rem; }
+    .preset-btn .preset-desc { color: #888; font-size: 0.75rem; }
+    .preset-btn .preset-price { color: #e94560; font-weight: 700; font-size: 1.1rem; }
+
     /* Admin pricing (hidden by default) */
     .admin-section { margin-top: 16px; display: none; }
     .admin-section.visible { display: block; }
@@ -211,8 +225,12 @@
     <div class="left-col">
       <div class="panel">
         <h2>📐 Design Your Boxes</h2>
+        <div class="presets">
+          <p style="font-size:0.8rem;color:#888;margin-bottom:8px;">POPULAR SIZES — tap to add</p>
+          <div class="preset-grid" id="preset-grid"></div>
+        </div>
         <div id="box-list"></div>
-        <button class="secondary" onclick="addBox()">+ Add Another Box</button>
+        <button class="secondary" onclick="addBox()">+ Custom Size</button>
       </div>
 
       <!-- Admin pricing panel (hidden, ?admin=true to show) -->
@@ -628,6 +646,7 @@
       document.getElementById('results-content').innerHTML = html;
       document.getElementById('results-panel').style.display = 'block';
       rebuildScene();
+      renderPresets();
     };
 
     // ---- Build Sheet Text ----
@@ -697,6 +716,48 @@
         // Fallback: copy
         navigator.clipboard.writeText(text).then(() => showToast('Build sheet copied to clipboard!'));
       }
+    };
+
+    // ---- Presets ----
+    const PRESETS = [
+      { length: 72, width: 36, pickets: 3, label: "6' × 3' × 16.5\"", desc: "Most popular — great for veggies" },
+      { length: 36, width: 36, pickets: 3, label: "3' × 3' × 16.5\"", desc: "Compact square — herbs & flowers" },
+      { length: 72, width: 24, pickets: 2, label: "6' × 2' × 11\"", desc: "Slim profile — along fences & paths" },
+      { length: 96, width: 48, pickets: 3, label: "8' × 4' × 16.5\"", desc: "Extra large — serious gardening" },
+    ];
+
+    function getBoxPrice(box) {
+      const pricePicket = parseFloat(document.getElementById('price-picket').value) || 0;
+      const price2x4 = parseFloat(document.getElementById('price-2x4').value) || 0;
+      const priceScrews = parseFloat(document.getElementById('price-screws').value) || 0;
+      const screwsPerBox = parseFloat(document.getElementById('screws-per-box').value) || 0;
+      const markup = parseFloat(document.getElementById('markup').value) || 2.0;
+      const laborPerBox = parseFloat(document.getElementById('labor-per-box').value) || 0;
+      const m = calculateMaterials(box);
+      const materialCost = m.pickets * pricePicket + m.boards2x4 * price2x4 + priceScrews * screwsPerBox;
+      return materialCost * markup + laborPerBox;
+    }
+
+    function renderPresets() {
+      const grid = document.getElementById('preset-grid');
+      grid.innerHTML = PRESETS.map((p, i) => {
+        const price = getBoxPrice(p);
+        return `<div class="preset-btn" onclick="addPreset(${i})">
+          <div class="preset-info">
+            <span class="preset-size">${p.label}</span>
+            <span class="preset-desc">${p.desc}</span>
+          </div>
+          <span class="preset-price">$${price.toFixed(0)}</span>
+        </div>`;
+      }).join('');
+    }
+
+    window.addPreset = function(idx) {
+      const p = PRESETS[idx];
+      window.boxes.push({ length: p.length, width: p.width, pickets: p.pickets, qty: 1 });
+      renderBoxList();
+      calculate();
+      showToast(`Added ${p.label}`);
     };
 
     // ---- UI: Box List ----
@@ -770,6 +831,7 @@
 
     // ---- Init ----
     initViewer();
+    renderPresets();
     renderBoxList();
     calculate();
   </script>
