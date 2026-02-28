@@ -438,9 +438,85 @@
     }
 
     // ---- Build Box Geometry ----
+    function createWoodTexture(baseColor, isPost) {
+      const canvas = document.createElement('canvas');
+      const w = isPost ? 64 : 256;
+      const h = isPost ? 256 : 64;
+      canvas.width = w;
+      canvas.height = h;
+      const ctx = canvas.getContext('2d');
+
+      const c = new THREE.Color(baseColor);
+      const r = Math.floor(c.r * 255);
+      const g = Math.floor(c.g * 255);
+      const b = Math.floor(c.b * 255);
+
+      // Base fill
+      ctx.fillStyle = `rgb(${r},${g},${b})`;
+      ctx.fillRect(0, 0, w, h);
+
+      // Wood grain lines along the length
+      const grainCount = isPost ? 8 + Math.floor(Math.random() * 6) : 12 + Math.floor(Math.random() * 8);
+      for (let i = 0; i < grainCount; i++) {
+        const darkness = 0.88 + Math.random() * 0.08;
+        const gr = Math.floor(r * darkness);
+        const gg = Math.floor(g * darkness);
+        const gb = Math.floor(b * darkness);
+        ctx.strokeStyle = `rgba(${gr},${gg},${gb},${0.3 + Math.random() * 0.4})`;
+        ctx.lineWidth = 0.5 + Math.random() * 1.5;
+        ctx.beginPath();
+        if (isPost) {
+          // Vertical grain for posts
+          const x = Math.random() * w;
+          ctx.moveTo(x + (Math.random() - 0.5) * 3, 0);
+          for (let y = 0; y < h; y += 8) {
+            ctx.lineTo(x + (Math.random() - 0.5) * 4, y);
+          }
+        } else {
+          // Horizontal grain for pickets
+          const y = Math.random() * h;
+          ctx.moveTo(0, y + (Math.random() - 0.5) * 3);
+          for (let x = 0; x < w; x += 8) {
+            ctx.lineTo(x, y + (Math.random() - 0.5) * 4);
+          }
+        }
+        ctx.stroke();
+      }
+
+      // Occasional knot
+      if (Math.random() > 0.6) {
+        const kx = w * 0.2 + Math.random() * w * 0.6;
+        const ky = h * 0.2 + Math.random() * h * 0.6;
+        const kr = 2 + Math.random() * 4;
+        const grad = ctx.createRadialGradient(kx, ky, 0, kx, ky, kr);
+        grad.addColorStop(0, `rgba(${Math.floor(r*0.6)},${Math.floor(g*0.55)},${Math.floor(b*0.5)},0.6)`);
+        grad.addColorStop(1, `rgba(${r},${g},${b},0)`);
+        ctx.fillStyle = grad;
+        ctx.fillRect(kx - kr, ky - kr, kr * 2, kr * 2);
+      }
+
+      // Subtle edge darkening for board separation
+      if (!isPost) {
+        const edgeGrad = ctx.createLinearGradient(0, 0, 0, h);
+        edgeGrad.addColorStop(0, `rgba(0,0,0,0.15)`);
+        edgeGrad.addColorStop(0.08, `rgba(0,0,0,0)`);
+        edgeGrad.addColorStop(0.92, `rgba(0,0,0,0)`);
+        edgeGrad.addColorStop(1, `rgba(0,0,0,0.15)`);
+        ctx.fillStyle = edgeGrad;
+        ctx.fillRect(0, 0, w, h);
+      }
+
+      const texture = new THREE.CanvasTexture(canvas);
+      texture.wrapS = THREE.RepeatWrapping;
+      texture.wrapT = THREE.RepeatWrapping;
+      return texture;
+    }
+
     function createCedarMaterial(color, isPost) {
+      const map = createWoodTexture(color, isPost);
       return new THREE.MeshStandardMaterial({
-        color: color,
+        map: map,
+        color: 0xffffff,
         roughness: 0.85,
         metalness: 0.0,
         flatShading: false,
