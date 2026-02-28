@@ -84,11 +84,43 @@
       display: flex;
       justify-content: space-between;
       align-items: center;
-      margin-bottom: 12px;
+      cursor: pointer;
+      user-select: none;
     }
     .box-entry .box-header span {
       font-weight: 600;
       color: #e94560;
+    }
+    .box-entry .box-header .header-left {
+      display: flex;
+      align-items: center;
+      gap: 8px;
+    }
+    .box-entry .box-header .toggle-icon {
+      font-size: 0.7rem;
+      color: #888;
+      transition: transform 0.2s;
+    }
+    .box-entry.collapsed .toggle-icon { transform: rotate(-90deg); }
+    .box-entry .box-summary {
+      font-size: 0.8rem;
+      color: #888;
+      margin-left: 4px;
+    }
+    .box-entry .box-body {
+      margin-top: 12px;
+      overflow: hidden;
+      transition: max-height 0.2s ease;
+      max-height: 500px;
+    }
+    .box-entry.collapsed .box-body {
+      max-height: 0;
+      margin-top: 0;
+    }
+    .box-entry .header-actions {
+      display: flex;
+      align-items: center;
+      gap: 4px;
     }
     .box-entry .remove-btn {
       background: none;
@@ -660,36 +692,52 @@
       calculate();
     };
 
+    window.toggleBox = function(idx) {
+      const el = document.querySelector(`[data-box-idx="${idx}"]`);
+      if (el) el.classList.toggle('collapsed');
+    };
+
     function renderBoxList() {
       const list = document.getElementById('box-list');
-      list.innerHTML = window.boxes.map((box, i) => `
-        <div class="box-entry">
-          <div class="box-header">
-            <span>Box ${i + 1}</span>
-            ${window.boxes.length > 1 ? `<button class="remove-btn" onclick="removeBox(${i})">✕</button>` : ''}
-          </div>
-          <div class="field-row">
-            <div class="field">
-              <label>Length (in)</label>
-              <input type="number" value="${box.length}" min="12" step="1" onchange="updateBox(${i},'length',this.value)">
+      list.innerHTML = window.boxes.map((box, i) => {
+        const h = box.pickets * 5.5;
+        const summary = `${box.length}"×${box.width}"×${h}" — qty ${box.qty}`;
+        return `
+        <div class="box-entry" data-box-idx="${i}">
+          <div class="box-header" onclick="toggleBox(${i})">
+            <div class="header-left">
+              <span class="toggle-icon">▼</span>
+              <span>Box ${i + 1}</span>
+              <span class="box-summary">${summary}</span>
             </div>
-            <div class="field">
-              <label>Width (in)</label>
-              <input type="number" value="${box.width}" min="12" step="1" onchange="updateBox(${i},'width',this.value)">
-            </div>
-            <div class="field">
-              <label>Pickets High</label>
-              <input type="number" value="${box.pickets}" min="1" max="6" step="1" onchange="updateBox(${i},'pickets',this.value)">
+            <div class="header-actions">
+              ${window.boxes.length > 1 ? `<button class="remove-btn" onclick="event.stopPropagation();removeBox(${i})">✕</button>` : ''}
             </div>
           </div>
-          <div class="qty-row">
-            <div class="field">
-              <label>Quantity</label>
-              <input type="number" value="${box.qty}" min="1" step="1" onchange="updateBox(${i},'qty',this.value)">
+          <div class="box-body">
+            <div class="field-row">
+              <div class="field">
+                <label>Length (in)</label>
+                <input type="number" value="${box.length}" min="12" step="1" onchange="updateBox(${i},'length',this.value)">
+              </div>
+              <div class="field">
+                <label>Width (in)</label>
+                <input type="number" value="${box.width}" min="12" step="1" onchange="updateBox(${i},'width',this.value)">
+              </div>
+              <div class="field">
+                <label>Pickets High</label>
+                <input type="number" value="${box.pickets}" min="1" max="6" step="1" onchange="updateBox(${i},'pickets',this.value)">
+              </div>
+            </div>
+            <div class="qty-row">
+              <div class="field">
+                <label>Quantity</label>
+                <input type="number" value="${box.qty}" min="1" step="1" onchange="updateBox(${i},'qty',this.value)">
+              </div>
             </div>
           </div>
-        </div>
-      `).join('');
+        </div>`;
+      }).join('');
     }
 
     // ---- Init ----
