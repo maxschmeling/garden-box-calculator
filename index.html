@@ -551,17 +551,45 @@
       boxMeshes.forEach(m => scene.remove(m));
       boxMeshes = [];
 
-      let offsetX = 0;
-      let colorIdx = 0;
-
+      // Collect all boxes with their sizes
+      const allBoxes = [];
       window.boxes.forEach((box) => {
         for (let q = 0; q < box.qty; q++) {
-          const group = buildBox(box.length, box.width, box.pickets, offsetX, 0, colorIdx);
-          scene.add(group);
-          boxMeshes.push(group);
-          offsetX += box.length + 24;
-          colorIdx++;
+          allBoxes.push({ ...box });
         }
+      });
+
+      if (allBoxes.length === 0) return;
+
+      // Layout in a grid
+      const cols = Math.ceil(Math.sqrt(allBoxes.length));
+      const gap = 24;
+      let colorIdx = 0;
+
+      // Calculate column widths and row depths for alignment
+      const colWidths = [];
+      const rowDepths = [];
+      allBoxes.forEach((box, i) => {
+        const col = i % cols;
+        const row = Math.floor(i / cols);
+        colWidths[col] = Math.max(colWidths[col] || 0, box.length);
+        rowDepths[row] = Math.max(rowDepths[row] || 0, box.width);
+      });
+
+      allBoxes.forEach((box, i) => {
+        const col = i % cols;
+        const row = Math.floor(i / cols);
+
+        let offsetX = 0;
+        for (let c = 0; c < col; c++) offsetX += colWidths[c] + gap;
+
+        let offsetZ = 0;
+        for (let r = 0; r < row; r++) offsetZ += rowDepths[r] + gap;
+
+        const group = buildBox(box.length, box.width, box.pickets, offsetX, offsetZ, colorIdx);
+        scene.add(group);
+        boxMeshes.push(group);
+        colorIdx++;
       });
     }
 
