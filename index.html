@@ -1,0 +1,669 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>Garden Box Calculator</title>
+  <style>
+    * { margin: 0; padding: 0; box-sizing: border-box; }
+    body {
+      font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, sans-serif;
+      background: #1a1a2e;
+      color: #e0e0e0;
+      min-height: 100vh;
+    }
+    header {
+      background: linear-gradient(135deg, #16213e, #0f3460);
+      padding: 24px 32px;
+      border-bottom: 2px solid #e94560;
+    }
+    header h1 { font-size: 1.8rem; color: #fff; }
+    header p { color: #a0a0b0; margin-top: 4px; font-size: 0.95rem; }
+    .container {
+      max-width: 1400px;
+      margin: 0 auto;
+      padding: 24px;
+      display: grid;
+      grid-template-columns: 380px 1fr;
+      gap: 24px;
+    }
+    @media (max-width: 900px) {
+      .container { grid-template-columns: 1fr; }
+    }
+    .panel {
+      background: #16213e;
+      border-radius: 12px;
+      padding: 24px;
+      border: 1px solid #0f3460;
+    }
+    .panel h2 {
+      font-size: 1.1rem;
+      color: #e94560;
+      margin-bottom: 16px;
+      padding-bottom: 8px;
+      border-bottom: 1px solid #0f3460;
+    }
+    .box-entry {
+      background: #1a1a2e;
+      border-radius: 8px;
+      padding: 16px;
+      margin-bottom: 12px;
+      border: 1px solid #0f3460;
+      position: relative;
+    }
+    .box-entry .box-header {
+      display: flex;
+      justify-content: space-between;
+      align-items: center;
+      margin-bottom: 12px;
+    }
+    .box-entry .box-header span {
+      font-weight: 600;
+      color: #e94560;
+    }
+    .box-entry .remove-btn {
+      background: none;
+      border: none;
+      color: #666;
+      cursor: pointer;
+      font-size: 1.2rem;
+      padding: 2px 8px;
+      border-radius: 4px;
+    }
+    .box-entry .remove-btn:hover { color: #e94560; background: rgba(233,69,96,0.1); }
+    .field-row {
+      display: grid;
+      grid-template-columns: 1fr 1fr 1fr;
+      gap: 8px;
+      margin-bottom: 8px;
+    }
+    .field {
+      display: flex;
+      flex-direction: column;
+    }
+    .field label {
+      font-size: 0.75rem;
+      color: #888;
+      margin-bottom: 4px;
+      text-transform: uppercase;
+      letter-spacing: 0.5px;
+    }
+    .field input, .field select {
+      background: #16213e;
+      border: 1px solid #0f3460;
+      color: #e0e0e0;
+      padding: 8px 10px;
+      border-radius: 6px;
+      font-size: 0.9rem;
+    }
+    .field input:focus, .field select:focus {
+      outline: none;
+      border-color: #e94560;
+    }
+    .qty-row {
+      display: grid;
+      grid-template-columns: 1fr 1fr;
+      gap: 8px;
+    }
+    button.primary {
+      background: #e94560;
+      color: #fff;
+      border: none;
+      padding: 10px 20px;
+      border-radius: 8px;
+      font-size: 0.9rem;
+      cursor: pointer;
+      font-weight: 600;
+      width: 100%;
+      margin-top: 8px;
+    }
+    button.primary:hover { background: #c73652; }
+    button.secondary {
+      background: transparent;
+      color: #e94560;
+      border: 1px solid #e94560;
+      padding: 10px 20px;
+      border-radius: 8px;
+      font-size: 0.9rem;
+      cursor: pointer;
+      font-weight: 600;
+      width: 100%;
+      margin-top: 8px;
+    }
+    button.secondary:hover { background: rgba(233,69,96,0.1); }
+
+    /* Pricing section */
+    .pricing-section { margin-top: 16px; }
+    .price-input-row {
+      display: grid;
+      grid-template-columns: 1fr 1fr;
+      gap: 8px;
+      margin-bottom: 8px;
+    }
+
+    /* Results */
+    .results { margin-top: 16px; }
+    .result-group {
+      background: #1a1a2e;
+      border-radius: 8px;
+      padding: 14px;
+      margin-bottom: 10px;
+      border: 1px solid #0f3460;
+    }
+    .result-group h3 {
+      font-size: 0.85rem;
+      color: #e94560;
+      margin-bottom: 8px;
+      text-transform: uppercase;
+      letter-spacing: 0.5px;
+    }
+    .result-line {
+      display: flex;
+      justify-content: space-between;
+      padding: 4px 0;
+      font-size: 0.9rem;
+    }
+    .result-line .label { color: #a0a0b0; }
+    .result-line .value { color: #fff; font-weight: 600; }
+    .total-line {
+      display: flex;
+      justify-content: space-between;
+      padding: 12px 0 0;
+      margin-top: 8px;
+      border-top: 2px solid #e94560;
+      font-size: 1.1rem;
+    }
+    .total-line .label { color: #fff; font-weight: 700; }
+    .total-line .value { color: #e94560; font-weight: 700; font-size: 1.3rem; }
+
+    /* 3D viewer */
+    .viewer-wrap {
+      display: flex;
+      flex-direction: column;
+    }
+    #viewer {
+      flex: 1;
+      min-height: 500px;
+      border-radius: 12px;
+      overflow: hidden;
+      cursor: grab;
+    }
+    #viewer:active { cursor: grabbing; }
+    .viewer-controls {
+      display: flex;
+      gap: 8px;
+      margin-top: 8px;
+      flex-wrap: wrap;
+    }
+    .viewer-controls button {
+      background: #16213e;
+      color: #a0a0b0;
+      border: 1px solid #0f3460;
+      padding: 6px 14px;
+      border-radius: 6px;
+      font-size: 0.8rem;
+      cursor: pointer;
+    }
+    .viewer-controls button:hover { border-color: #e94560; color: #fff; }
+    .viewer-controls button.active { border-color: #e94560; color: #e94560; }
+    .box-color-dot {
+      display: inline-block;
+      width: 12px;
+      height: 12px;
+      border-radius: 50%;
+      margin-right: 6px;
+      vertical-align: middle;
+    }
+  </style>
+</head>
+<body>
+  <header>
+    <h1>🌿 Garden Box Calculator</h1>
+    <p>Cedar raised garden beds — materials, cost & 3D preview</p>
+  </header>
+
+  <div class="container">
+    <div class="left-col">
+      <div class="panel">
+        <h2>📦 Boxes</h2>
+        <div id="box-list"></div>
+        <button class="secondary" onclick="addBox()">+ Add Box</button>
+      </div>
+
+      <div class="panel pricing-section">
+        <h2>💰 Material Prices</h2>
+        <div class="price-input-row">
+          <div class="field">
+            <label>Fence Picket (6')</label>
+            <input type="number" id="price-picket" value="3.50" step="0.01" min="0" onchange="calculate()">
+          </div>
+          <div class="field">
+            <label>2×4 S4S (8')</label>
+            <input type="number" id="price-2x4" value="8.00" step="0.01" min="0" onchange="calculate()">
+          </div>
+        </div>
+        <div class="price-input-row">
+          <div class="field">
+            <label>Screws (per lb)</label>
+            <input type="number" id="price-screws" value="8.00" step="0.01" min="0" onchange="calculate()">
+          </div>
+          <div class="field">
+            <label>Screws/box (lbs)</label>
+            <input type="number" id="screws-per-box" value="0.5" step="0.1" min="0" onchange="calculate()">
+          </div>
+        </div>
+      </div>
+
+      <div class="panel results" id="results-panel" style="display:none;">
+        <h2>📋 Materials & Cost</h2>
+        <div id="results-content"></div>
+      </div>
+    </div>
+
+    <div class="viewer-wrap">
+      <div class="panel" style="flex:1;display:flex;flex-direction:column;padding:0;overflow:hidden;">
+        <div id="viewer"></div>
+      </div>
+      <div class="viewer-controls">
+        <button onclick="resetCamera()">Reset View</button>
+        <button onclick="toggleWireframe()" id="wireframe-btn">Wireframe</button>
+        <button onclick="toggleExplode()" id="explode-btn">Explode View</button>
+      </div>
+    </div>
+  </div>
+
+  <script type="importmap">
+  {
+    "imports": {
+      "three": "https://cdn.jsdelivr.net/npm/three@0.170.0/build/three.module.js",
+      "three/addons/": "https://cdn.jsdelivr.net/npm/three@0.170.0/examples/jsm/"
+    }
+  }
+  </script>
+  <script type="module">
+    import * as THREE from 'three';
+    import { OrbitControls } from 'three/addons/controls/OrbitControls.js';
+
+    // ---- Constants ----
+    const PICKET_WIDTH = 5.5;    // inches
+    const PICKET_THICKNESS = 0.625; // 5/8"
+    const PICKET_LENGTH = 72;    // 6 feet in inches
+    const POST_WIDTH = 1.5;      // actual 2x4 dimension
+    const POST_DEPTH = 3.5;      // actual 2x4 dimension
+
+    const BOX_COLORS = [
+      0xd4a574, 0xc49a6c, 0xb8906a, 0xcfaa7a, 0xbf9060,
+      0xd4aa70, 0xc8a070, 0xb89868
+    ];
+
+    let scene, camera, renderer, controls;
+    let boxMeshes = [];
+    let wireframeMode = false;
+    let explodeMode = false;
+
+    // ---- Box State ----
+    window.boxes = [
+      { length: 72, width: 36, pickets: 3, qty: 1 }
+    ];
+
+    // ---- Init Three.js ----
+    function initViewer() {
+      const container = document.getElementById('viewer');
+      const w = container.clientWidth;
+      const h = container.clientHeight || 500;
+
+      scene = new THREE.Scene();
+      scene.background = new THREE.Color(0x1a1a2e);
+
+      camera = new THREE.PerspectiveCamera(45, w / h, 0.1, 10000);
+      camera.position.set(120, 80, 120);
+
+      renderer = new THREE.WebGLRenderer({ antialias: true });
+      renderer.setSize(w, h);
+      renderer.setPixelRatio(window.devicePixelRatio);
+      renderer.shadowMap.enabled = true;
+      container.appendChild(renderer.domElement);
+
+      controls = new OrbitControls(camera, renderer.domElement);
+      controls.enableDamping = true;
+      controls.dampingFactor = 0.05;
+
+      // Lights
+      const ambient = new THREE.AmbientLight(0xffffff, 0.5);
+      scene.add(ambient);
+      const dir = new THREE.DirectionalLight(0xffffff, 0.8);
+      dir.position.set(100, 150, 100);
+      dir.castShadow = true;
+      scene.add(dir);
+      const dir2 = new THREE.DirectionalLight(0xffffff, 0.3);
+      dir2.position.set(-50, 80, -50);
+      scene.add(dir2);
+
+      // Ground
+      const groundGeo = new THREE.PlaneGeometry(1000, 1000);
+      const groundMat = new THREE.MeshStandardMaterial({ color: 0x2d5a27, roughness: 0.9 });
+      const ground = new THREE.Mesh(groundGeo, groundMat);
+      ground.rotation.x = -Math.PI / 2;
+      ground.position.y = -0.5;
+      ground.receiveShadow = true;
+      scene.add(ground);
+
+      // Grid
+      const grid = new THREE.GridHelper(200, 20, 0x3a7a34, 0x3a7a34);
+      grid.position.y = -0.4;
+      grid.material.opacity = 0.3;
+      grid.material.transparent = true;
+      scene.add(grid);
+
+      window.addEventListener('resize', () => {
+        const w = container.clientWidth;
+        const h = container.clientHeight;
+        camera.aspect = w / h;
+        camera.updateProjectionMatrix();
+        renderer.setSize(w, h);
+      });
+
+      animate();
+    }
+
+    function animate() {
+      requestAnimationFrame(animate);
+      controls.update();
+      renderer.render(scene, camera);
+    }
+
+    // ---- Build Box Geometry ----
+    function createCedarMaterial(color, isPost) {
+      return new THREE.MeshStandardMaterial({
+        color: color,
+        roughness: 0.85,
+        metalness: 0.0,
+        flatShading: false,
+        wireframe: wireframeMode
+      });
+    }
+
+    function buildBox(lengthIn, widthIn, numPickets, offsetX, offsetZ, colorIndex) {
+      const group = new THREE.Group();
+      const height = numPickets * PICKET_WIDTH;
+      const baseColor = BOX_COLORS[colorIndex % BOX_COLORS.length];
+      const postColor = new THREE.Color(baseColor).multiplyScalar(0.75).getHex();
+      const explodeOffset = explodeMode ? 8 : 0;
+
+      const S = 1; // scale: 1 inch = 1 unit
+
+      // Corner posts (2x4, full height)
+      const postGeo = new THREE.BoxGeometry(POST_DEPTH * S, height * S, POST_WIDTH * S);
+      const postMat = createCedarMaterial(postColor, true);
+      const corners = [
+        [0, 0],
+        [lengthIn - POST_DEPTH, 0],
+        [0, widthIn - POST_WIDTH],
+        [lengthIn - POST_DEPTH, widthIn - POST_WIDTH]
+      ];
+      corners.forEach(([x, z], i) => {
+        const post = new THREE.Mesh(postGeo, postMat);
+        const ex = explodeMode ? (i % 2 === 0 ? -explodeOffset : explodeOffset) : 0;
+        const ez = explodeMode ? (i < 2 ? -explodeOffset : explodeOffset) : 0;
+        post.position.set(
+          x + POST_DEPTH / 2 + ex,
+          height / 2,
+          z + POST_WIDTH / 2 + ez
+        );
+        post.castShadow = true;
+        group.add(post);
+      });
+
+      // Middle support posts on long sides (if length > 48")
+      if (lengthIn > 48) {
+        const midX = lengthIn / 2 - POST_DEPTH / 2;
+        const midPostGeo = new THREE.BoxGeometry(POST_DEPTH * S, height * S, POST_WIDTH * S);
+        const midPostMat = createCedarMaterial(postColor, true);
+        [0, widthIn - POST_WIDTH].forEach((z, i) => {
+          const post = new THREE.Mesh(midPostGeo, midPostMat);
+          const ez = explodeMode ? (i === 0 ? -explodeOffset : explodeOffset) : 0;
+          post.position.set(midX + POST_DEPTH / 2, height / 2, z + POST_WIDTH / 2 + ez);
+          post.castShadow = true;
+          group.add(post);
+        });
+      }
+
+      // Pickets for long sides (front and back)
+      for (let row = 0; row < numPickets; row++) {
+        const y = row * PICKET_WIDTH + PICKET_WIDTH / 2;
+        const picketLen = lengthIn;
+        const geo = new THREE.BoxGeometry(picketLen * S, PICKET_WIDTH * S, PICKET_THICKNESS * S);
+
+        // Vary color slightly per picket
+        const variation = 0.95 + Math.random() * 0.1;
+        const pColor = new THREE.Color(baseColor).multiplyScalar(variation).getHex();
+        const mat = createCedarMaterial(pColor, false);
+
+        // Front
+        const front = new THREE.Mesh(geo, mat);
+        const fez = explodeMode ? -explodeOffset : 0;
+        front.position.set(picketLen / 2, y, -PICKET_THICKNESS / 2 + fez);
+        front.castShadow = true;
+        group.add(front);
+
+        // Back
+        const back = new THREE.Mesh(geo, mat.clone());
+        const bez = explodeMode ? explodeOffset : 0;
+        back.position.set(picketLen / 2, y, widthIn + PICKET_THICKNESS / 2 + bez);
+        back.castShadow = true;
+        group.add(back);
+      }
+
+      // Pickets for short sides (left and right)
+      for (let row = 0; row < numPickets; row++) {
+        const y = row * PICKET_WIDTH + PICKET_WIDTH / 2;
+        const picketLen = widthIn;
+        const geo = new THREE.BoxGeometry(PICKET_THICKNESS * S, PICKET_WIDTH * S, picketLen * S);
+
+        const variation = 0.95 + Math.random() * 0.1;
+        const pColor = new THREE.Color(baseColor).multiplyScalar(variation).getHex();
+        const mat = createCedarMaterial(pColor, false);
+
+        // Left
+        const left = new THREE.Mesh(geo, mat);
+        const lex = explodeMode ? -explodeOffset : 0;
+        left.position.set(-PICKET_THICKNESS / 2 + lex, y, picketLen / 2);
+        left.castShadow = true;
+        group.add(left);
+
+        // Right
+        const right = new THREE.Mesh(geo, mat.clone());
+        const rex = explodeMode ? explodeOffset : 0;
+        right.position.set(lengthIn + PICKET_THICKNESS / 2 + rex, y, picketLen / 2);
+        right.castShadow = true;
+        group.add(right);
+      }
+
+      group.position.set(offsetX, 0, offsetZ);
+      return group;
+    }
+
+    function rebuildScene() {
+      boxMeshes.forEach(m => scene.remove(m));
+      boxMeshes = [];
+
+      let offsetX = 0;
+      let colorIdx = 0;
+
+      window.boxes.forEach((box) => {
+        for (let q = 0; q < box.qty; q++) {
+          const group = buildBox(box.length, box.width, box.pickets, offsetX, 0, colorIdx);
+          scene.add(group);
+          boxMeshes.push(group);
+          offsetX += box.length + 24;
+          colorIdx++;
+        }
+      });
+    }
+
+    window.resetCamera = function() {
+      camera.position.set(120, 80, 120);
+      controls.target.set(0, 10, 0);
+      controls.update();
+    };
+
+    window.toggleWireframe = function() {
+      wireframeMode = !wireframeMode;
+      document.getElementById('wireframe-btn').classList.toggle('active', wireframeMode);
+      rebuildScene();
+    };
+
+    window.toggleExplode = function() {
+      explodeMode = !explodeMode;
+      document.getElementById('explode-btn').classList.toggle('active', explodeMode);
+      rebuildScene();
+    };
+
+    // ---- Material Calculations ----
+    function calculateMaterials(box) {
+      const height = box.pickets * PICKET_WIDTH;
+
+      // Pickets needed for long sides
+      // Each picket is 6' (72") long. If box length <= 72", one picket per row per side.
+      // If longer, need multiple pickets per row.
+      const picketsPerRowLong = Math.ceil(box.length / PICKET_LENGTH);
+      const longSidePickets = picketsPerRowLong * box.pickets * 2;
+
+      // Pickets for short sides
+      const picketsPerRowShort = Math.ceil(box.width / PICKET_LENGTH);
+      const shortSidePickets = picketsPerRowShort * box.pickets * 2;
+
+      const totalPickets = longSidePickets + shortSidePickets;
+
+      // 2x4 posts: 4 corners always. Middle supports on long sides if > 48"
+      const middlePosts = box.length > 48 ? 2 : 0;
+      const totalPosts = 4 + middlePosts;
+
+      // Each post is cut to height from 8' (96") 2x4s
+      const postsPerBoard = Math.floor(96 / height);
+      const boardsNeeded = Math.ceil(totalPosts / postsPerBoard);
+
+      return {
+        pickets: totalPickets,
+        posts: totalPosts,
+        postsPerBoard,
+        boards2x4: boardsNeeded,
+        height
+      };
+    }
+
+    window.calculate = function() {
+      const pricePicket = parseFloat(document.getElementById('price-picket').value) || 0;
+      const price2x4 = parseFloat(document.getElementById('price-2x4').value) || 0;
+      const priceScrews = parseFloat(document.getElementById('price-screws').value) || 0;
+      const screwsPerBox = parseFloat(document.getElementById('screws-per-box').value) || 0;
+
+      let html = '';
+      let grandTotalPickets = 0;
+      let grandTotalBoards = 0;
+      let grandTotalCost = 0;
+      let grandTotalScrewCost = 0;
+
+      window.boxes.forEach((box, i) => {
+        const m = calculateMaterials(box);
+        const qtyPickets = m.pickets * box.qty;
+        const qtyBoards = m.boards2x4 * box.qty;
+        const picketCost = qtyPickets * pricePicket;
+        const boardCost = qtyBoards * price2x4;
+        const screwCost = priceScrews * screwsPerBox * box.qty;
+        const boxTotal = picketCost + boardCost + screwCost;
+
+        grandTotalPickets += qtyPickets;
+        grandTotalBoards += qtyBoards;
+        grandTotalCost += boxTotal;
+        grandTotalScrewCost += screwCost;
+
+        const dimLabel = `${box.length}"×${box.width}"×${m.height}" (${box.pickets} high)`;
+        const color = BOX_COLORS[i % BOX_COLORS.length];
+        const colorHex = '#' + color.toString(16).padStart(6, '0');
+
+        html += `<div class="result-group">
+          <h3><span class="box-color-dot" style="background:${colorHex}"></span>Box ${i + 1}: ${dimLabel} × ${box.qty}</h3>
+          <div class="result-line"><span class="label">Fence pickets (6')</span><span class="value">${qtyPickets} × $${pricePicket.toFixed(2)} = $${picketCost.toFixed(2)}</span></div>
+          <div class="result-line"><span class="label">2×4 S4S (8')</span><span class="value">${qtyBoards} × $${price2x4.toFixed(2)} = $${boardCost.toFixed(2)}</span></div>
+          <div class="result-line"><span class="label">Posts per box: ${m.totalPosts || m.posts} (${m.postsPerBoard}/board)</span><span class="value"></span></div>
+          <div class="result-line"><span class="label">Screws</span><span class="value">$${screwCost.toFixed(2)}</span></div>
+          <div class="result-line" style="border-top:1px solid #0f3460;padding-top:6px;margin-top:4px"><span class="label" style="color:#fff">Subtotal</span><span class="value">$${boxTotal.toFixed(2)}</span></div>
+        </div>`;
+      });
+
+      html += `<div class="result-group">
+        <h3>🛒 Shopping List</h3>
+        <div class="result-line"><span class="label">Cedar fence pickets (6')</span><span class="value">${grandTotalPickets}</span></div>
+        <div class="result-line"><span class="label">Cedar 2×4 S4S (8')</span><span class="value">${grandTotalBoards}</span></div>
+        <div class="result-line"><span class="label">Deck screws</span><span class="value">${(screwsPerBox * window.boxes.reduce((s, b) => s + b.qty, 0)).toFixed(1)} lbs</span></div>
+      </div>`;
+
+      html += `<div class="total-line"><span class="label">Total Material Cost</span><span class="value">$${grandTotalCost.toFixed(2)}</span></div>`;
+
+      document.getElementById('results-content').innerHTML = html;
+      document.getElementById('results-panel').style.display = 'block';
+
+      rebuildScene();
+    };
+
+    // ---- UI: Box List ----
+    window.addBox = function() {
+      window.boxes.push({ length: 72, width: 36, pickets: 3, qty: 1 });
+      renderBoxList();
+      calculate();
+    };
+
+    window.removeBox = function(idx) {
+      if (window.boxes.length <= 1) return;
+      window.boxes.splice(idx, 1);
+      renderBoxList();
+      calculate();
+    };
+
+    window.updateBox = function(idx, field, value) {
+      const num = parseFloat(value);
+      if (isNaN(num) || num <= 0) return;
+      window.boxes[idx][field] = field === 'qty' || field === 'pickets' ? Math.round(num) : num;
+      calculate();
+    };
+
+    function renderBoxList() {
+      const list = document.getElementById('box-list');
+      list.innerHTML = window.boxes.map((box, i) => `
+        <div class="box-entry">
+          <div class="box-header">
+            <span>Box ${i + 1}</span>
+            ${window.boxes.length > 1 ? `<button class="remove-btn" onclick="removeBox(${i})">✕</button>` : ''}
+          </div>
+          <div class="field-row">
+            <div class="field">
+              <label>Length (in)</label>
+              <input type="number" value="${box.length}" min="12" step="1" onchange="updateBox(${i},'length',this.value)">
+            </div>
+            <div class="field">
+              <label>Width (in)</label>
+              <input type="number" value="${box.width}" min="12" step="1" onchange="updateBox(${i},'width',this.value)">
+            </div>
+            <div class="field">
+              <label>Pickets High</label>
+              <input type="number" value="${box.pickets}" min="1" max="6" step="1" onchange="updateBox(${i},'pickets',this.value)">
+            </div>
+          </div>
+          <div class="qty-row">
+            <div class="field">
+              <label>Quantity</label>
+              <input type="number" value="${box.qty}" min="1" step="1" onchange="updateBox(${i},'qty',this.value)">
+            </div>
+          </div>
+        </div>
+      `).join('');
+    }
+
+    // ---- Init ----
+    initViewer();
+    renderBoxList();
+    calculate();
+  </script>
+</body>
+</html>
