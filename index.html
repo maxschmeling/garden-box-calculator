@@ -28,7 +28,31 @@
       gap: 24px;
     }
     @media (max-width: 900px) {
-      .container { grid-template-columns: 1fr; }
+      .container { grid-template-columns: 1fr; padding: 12px; gap: 16px; }
+      header { padding: 16px 20px; }
+      header h1 { font-size: 1.4rem; }
+      .panel { padding: 16px; }
+      #viewer { min-height: 350px !important; }
+      .field-row { grid-template-columns: 1fr 1fr; }
+      .price-input-row { grid-template-columns: 1fr 1fr; }
+      .result-line { font-size: 0.8rem; flex-wrap: wrap; gap: 2px; }
+      .result-line .value { font-size: 0.8rem; }
+      .viewer-controls { justify-content: center; }
+    }
+    @media (max-width: 480px) {
+      .container { padding: 8px; gap: 12px; }
+      header { padding: 12px 16px; }
+      header h1 { font-size: 1.2rem; }
+      .panel { padding: 12px; }
+      .box-entry { padding: 12px; }
+      #viewer { min-height: 280px !important; }
+      .field-row { grid-template-columns: 1fr 1fr; gap: 6px; }
+      .qty-row { grid-template-columns: 1fr; }
+      .price-input-row { grid-template-columns: 1fr; }
+      .result-line { flex-direction: column; gap: 0; }
+      .result-line .value { text-align: left; }
+      .total-line { flex-direction: column; gap: 4px; }
+      .total-line .value { text-align: left; }
     }
     .panel {
       background: #16213e;
