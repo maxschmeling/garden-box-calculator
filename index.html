@@ -469,15 +469,20 @@
         group.add(post);
       });
 
-      if (lengthIn > 48) {
-        const midX = lengthIn/2 - POST_DEPTH/2;
+      // Brace posts every 36" max on long sides
+      const numBraces = Math.max(0, Math.ceil(lengthIn / 36) - 1);
+      if (numBraces > 0) {
+        const spacing = lengthIn / (numBraces + 1);
         const midPostGeo = new THREE.BoxGeometry(POST_DEPTH, height, POST_WIDTH);
-        [0, widthIn-POST_WIDTH].forEach((z, i) => {
-          const post = new THREE.Mesh(midPostGeo, createCedarMaterial(postColor, true));
-          post.position.set(midX + POST_DEPTH/2, height/2, z + POST_WIDTH/2 + (explodeMode ? (i===0 ? -explodeOffset : explodeOffset) : 0));
-          post.castShadow = true;
-          group.add(post);
-        });
+        for (let b = 1; b <= numBraces; b++) {
+          const midX = spacing * b - POST_DEPTH / 2;
+          [0, widthIn-POST_WIDTH].forEach((z, i) => {
+            const post = new THREE.Mesh(midPostGeo, createCedarMaterial(postColor, true));
+            post.position.set(midX + POST_DEPTH/2, height/2, z + POST_WIDTH/2 + (explodeMode ? (i===0 ? -explodeOffset : explodeOffset) : 0));
+            post.castShadow = true;
+            group.add(post);
+          });
+        }
       }
 
       for (let row = 0; row < numPickets; row++) {
@@ -568,8 +573,9 @@
       const picketsPerRowShort = Math.ceil(box.width / PICKET_LENGTH);
       const shortSidePickets = picketsPerRowShort * box.pickets * 2;
       const totalPickets = longSidePickets + shortSidePickets;
-      const middlePosts = box.length > 48 ? 2 : 0;
-      const totalPosts = 4 + middlePosts;
+      const numBraces = Math.max(0, Math.ceil(box.length / 36) - 1);
+      const bracePosts = numBraces * 2; // one on each long side
+      const totalPosts = 4 + bracePosts;
       const postsPerBoard = Math.floor(96 / height);
       const boardsNeeded = Math.ceil(totalPosts / postsPerBoard);
       return { pickets: totalPickets, posts: totalPosts, postsPerBoard, boards2x4: boardsNeeded, height };
@@ -608,7 +614,7 @@
         html += `<div class="result-group">
           <h3><span class="box-color-dot" style="background:${colorHex}"></span>${dimLabel}${box.qty > 1 ? ` × ${box.qty}` : ''}</h3>
           <div class="result-line"><span class="label">Cedar fence pickets</span><span class="value">${box.pickets} boards tall</span></div>
-          <div class="result-line"><span class="label">Construction</span><span class="value">4 corner posts${m.posts > 4 ? ' + center supports' : ''}</span></div>
+          <div class="result-line"><span class="label">Construction</span><span class="value">4 corners${m.posts > 4 ? ` + ${m.posts - 4} brace${m.posts - 4 > 1 ? 's' : ''}` : ''}</span></div>
           <div class="result-line" style="border-top:1px solid #0f3460;padding-top:6px;margin-top:4px">
             <span class="label" style="color:#fff">${box.qty > 1 ? `$${perUnit.toFixed(0)} each × ${box.qty}` : 'Price'}</span>
             <span class="value" style="color:#e94560">$${boxPrice.toFixed(0)}</span>
