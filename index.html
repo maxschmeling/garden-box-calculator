@@ -3,17 +3,17 @@
 <head>
   <meta charset="UTF-8">
   <meta name="viewport" content="width=device-width, initial-scale=1.0">
-  <title>Garden Box Calculator</title>
-  <meta property="og:title" content="Garden Box Calculator">
-  <meta property="og:description" content="Cedar raised garden beds — calculate materials, cost & see an interactive 3D preview">
+  <title>Garden Box Builder — Custom Cedar Raised Beds</title>
+  <meta property="og:title" content="Garden Box Builder — Custom Cedar Raised Beds">
+  <meta property="og:description" content="Design your custom cedar raised garden beds, get an instant quote & share your build specs">
   <meta property="og:image" content="https://maxschmeling.github.io/garden-box-calculator/og-image.png">
   <meta property="og:image:width" content="1200">
   <meta property="og:image:height" content="630">
   <meta property="og:type" content="website">
   <meta property="og:url" content="https://maxschmeling.github.io/garden-box-calculator/">
   <meta name="twitter:card" content="summary_large_image">
-  <meta name="twitter:title" content="Garden Box Calculator">
-  <meta name="twitter:description" content="Cedar raised garden beds — materials, cost & interactive 3D preview">
+  <meta name="twitter:title" content="Garden Box Builder — Custom Cedar Raised Beds">
+  <meta name="twitter:description" content="Design your custom cedar raised garden beds, get an instant quote & share your build specs">
   <meta name="twitter:image" content="https://maxschmeling.github.io/garden-box-calculator/og-image.png">
   <style>
     * { margin: 0; padding: 0; box-sizing: border-box; }
@@ -49,7 +49,6 @@
       .panel { padding: 16px; }
       #viewer { min-height: 0 !important; height: 150px !important; }
       .viewer-wrap { max-width: 100vw; overflow: hidden; }
-      /* inputs already vertical */
       .result-line { font-size: 0.8rem; flex-wrap: wrap; gap: 2px; }
       .result-line .value { font-size: 0.8rem; }
       .viewer-controls { justify-content: center; }
@@ -61,7 +60,6 @@
       .panel { padding: 12px; }
       .box-entry { padding: 12px; }
       #viewer { min-height: 0 !important; height: 150px !important; }
-      /* inputs already vertical */
       .result-line { flex-direction: column; gap: 0; }
       .result-line .value { text-align: left; }
       .total-line { flex-direction: column; gap: 4px; }
@@ -98,228 +96,141 @@
       cursor: pointer;
       user-select: none;
     }
-    .box-entry .box-header span {
-      font-weight: 600;
-      color: #e94560;
-    }
-    .box-entry .box-header .header-left {
-      display: flex;
-      align-items: center;
-      gap: 8px;
-    }
-    .box-entry .box-header .toggle-icon {
-      font-size: 0.7rem;
-      color: #888;
-      transition: transform 0.2s;
-    }
+    .box-entry .box-header span { font-weight: 600; color: #e94560; }
+    .box-entry .box-header .header-left { display: flex; align-items: center; gap: 8px; }
+    .box-entry .box-header .toggle-icon { font-size: 0.7rem; color: #888; transition: transform 0.2s; }
     .box-entry.collapsed .toggle-icon { transform: rotate(-90deg); }
-    .box-entry .box-summary {
-      font-size: 0.8rem;
-      color: #888;
-      margin-left: 4px;
-    }
-    .box-entry .box-body {
-      margin-top: 12px;
-      overflow: hidden;
-      transition: max-height 0.2s ease;
-      max-height: 500px;
-    }
-    .box-entry.collapsed .box-body {
-      max-height: 0;
-      margin-top: 0;
-    }
-    .box-entry .header-actions {
-      display: flex;
-      align-items: center;
-      gap: 4px;
-    }
+    .box-entry .box-summary { font-size: 0.8rem; color: #888; margin-left: 4px; }
+    .box-entry .box-body { margin-top: 12px; overflow: hidden; transition: max-height 0.2s ease; max-height: 500px; }
+    .box-entry.collapsed .box-body { max-height: 0; margin-top: 0; }
+    .box-entry .header-actions { display: flex; align-items: center; gap: 4px; }
     .box-entry .remove-btn {
-      background: none;
-      border: none;
-      color: #666;
-      cursor: pointer;
-      font-size: 1.2rem;
-      padding: 2px 8px;
-      border-radius: 4px;
+      background: none; border: none; color: #666; cursor: pointer;
+      font-size: 1.2rem; padding: 2px 8px; border-radius: 4px;
     }
     .box-entry .remove-btn:hover { color: #e94560; background: rgba(233,69,96,0.1); }
-    .field-row {
-      display: flex;
-      flex-direction: column;
-      gap: 8px;
-      margin-bottom: 8px;
-    }
-    .field {
-      display: flex;
-      flex-direction: column;
-    }
-    .field label {
-      font-size: 0.75rem;
-      color: #888;
-      margin-bottom: 4px;
-      text-transform: uppercase;
-      letter-spacing: 0.5px;
-    }
+    .field-row { display: flex; flex-direction: column; gap: 8px; margin-bottom: 8px; }
+    .field { display: flex; flex-direction: column; }
+    .field label { font-size: 0.75rem; color: #888; margin-bottom: 4px; text-transform: uppercase; letter-spacing: 0.5px; }
     .field input, .field select {
-      background: #16213e;
-      border: 1px solid #0f3460;
-      color: #e0e0e0;
-      padding: 8px 10px;
-      border-radius: 6px;
-      font-size: 0.9rem;
-      width: 100%;
+      background: #16213e; border: 1px solid #0f3460; color: #e0e0e0;
+      padding: 8px 10px; border-radius: 6px; font-size: 0.9rem; width: 100%;
     }
-    .field input:focus, .field select:focus {
-      outline: none;
-      border-color: #e94560;
-    }
-    .qty-row {
-      display: flex;
-      flex-direction: column;
-      gap: 8px;
-    }
+    .field input:focus, .field select:focus { outline: none; border-color: #e94560; }
+    .qty-row { display: flex; flex-direction: column; gap: 8px; }
     button.primary {
-      background: #e94560;
-      color: #fff;
-      border: none;
-      padding: 10px 20px;
-      border-radius: 8px;
-      font-size: 0.9rem;
-      cursor: pointer;
-      font-weight: 600;
-      width: 100%;
-      margin-top: 8px;
+      background: #e94560; color: #fff; border: none; padding: 10px 20px;
+      border-radius: 8px; font-size: 0.9rem; cursor: pointer; font-weight: 600;
+      width: 100%; margin-top: 8px;
     }
     button.primary:hover { background: #c73652; }
     button.secondary {
-      background: transparent;
-      color: #e94560;
-      border: 1px solid #e94560;
-      padding: 10px 20px;
-      border-radius: 8px;
-      font-size: 0.9rem;
-      cursor: pointer;
-      font-weight: 600;
-      width: 100%;
-      margin-top: 8px;
+      background: transparent; color: #e94560; border: 1px solid #e94560;
+      padding: 10px 20px; border-radius: 8px; font-size: 0.9rem; cursor: pointer;
+      font-weight: 600; width: 100%; margin-top: 8px;
     }
     button.secondary:hover { background: rgba(233,69,96,0.1); }
 
-    /* Pricing section */
-    .pricing-section { margin-top: 16px; }
-    .price-input-row {
-      display: flex;
-      flex-direction: column;
-      gap: 8px;
-      margin-bottom: 8px;
-    }
+    /* Admin pricing (hidden by default) */
+    .admin-section { margin-top: 16px; display: none; }
+    .admin-section.visible { display: block; }
+    .price-input-row { display: flex; flex-direction: column; gap: 8px; margin-bottom: 8px; }
 
     /* Results */
     .results { margin-top: 16px; }
     .result-group {
-      background: #1a1a2e;
-      border-radius: 8px;
-      padding: 14px;
-      margin-bottom: 10px;
-      border: 1px solid #0f3460;
+      background: #1a1a2e; border-radius: 8px; padding: 14px;
+      margin-bottom: 10px; border: 1px solid #0f3460;
     }
-    .result-group h3 {
-      font-size: 0.85rem;
-      color: #e94560;
-      margin-bottom: 8px;
-      text-transform: uppercase;
-      letter-spacing: 0.5px;
-    }
-    .result-line {
-      display: flex;
-      justify-content: space-between;
-      padding: 4px 0;
-      font-size: 0.9rem;
-    }
+    .result-group h3 { font-size: 0.85rem; color: #e94560; margin-bottom: 8px; text-transform: uppercase; letter-spacing: 0.5px; }
+    .result-line { display: flex; justify-content: space-between; padding: 4px 0; font-size: 0.9rem; }
     .result-line .label { color: #a0a0b0; }
     .result-line .value { color: #fff; font-weight: 600; }
     .total-line {
-      display: flex;
-      justify-content: space-between;
-      padding: 12px 0 0;
-      margin-top: 8px;
-      border-top: 2px solid #e94560;
-      font-size: 1.1rem;
+      display: flex; justify-content: space-between; padding: 12px 0 0;
+      margin-top: 8px; border-top: 2px solid #e94560; font-size: 1.1rem;
     }
     .total-line .label { color: #fff; font-weight: 700; }
     .total-line .value { color: #e94560; font-weight: 700; font-size: 1.3rem; }
+    .box-color-dot { display: inline-block; width: 12px; height: 12px; border-radius: 50%; margin-right: 6px; vertical-align: middle; }
+
+    /* Share buttons */
+    .share-buttons { display: flex; gap: 8px; margin-top: 12px; flex-wrap: wrap; }
+    .share-buttons button {
+      flex: 1; min-width: 120px; background: #16213e; color: #e0e0e0;
+      border: 1px solid #0f3460; padding: 10px 16px; border-radius: 8px;
+      font-size: 0.85rem; cursor: pointer; font-weight: 600; text-align: center;
+    }
+    .share-buttons button:hover { border-color: #e94560; color: #fff; }
+    .share-buttons button.copied { background: #2d5a27; border-color: #3a7a34; color: #7dde6a; }
+
+    /* Toast */
+    .toast {
+      position: fixed; bottom: 24px; left: 50%; transform: translateX(-50%);
+      background: #2d5a27; color: #7dde6a; padding: 12px 24px; border-radius: 8px;
+      font-size: 0.9rem; font-weight: 600; z-index: 1000; opacity: 0;
+      transition: opacity 0.3s; pointer-events: none;
+    }
+    .toast.show { opacity: 1; }
 
     /* 3D viewer */
-    .viewer-wrap {
-      display: flex;
-      flex-direction: column;
-      min-width: 0;
-      overflow: hidden;
-    }
-    #viewer {
-      height: 500px;
-      border-radius: 12px;
-      overflow: hidden;
-      cursor: grab;
-      width: 100%;
-    }
+    .viewer-wrap { display: flex; flex-direction: column; min-width: 0; overflow: hidden; }
+    #viewer { height: 500px; border-radius: 12px; overflow: hidden; cursor: grab; width: 100%; }
     #viewer:active { cursor: grabbing; }
-    .viewer-controls {
-      display: flex;
-      gap: 8px;
-      margin-top: 8px;
-      flex-wrap: wrap;
-    }
+    .viewer-controls { display: flex; gap: 8px; margin-top: 8px; flex-wrap: wrap; }
     .viewer-controls button {
-      background: #16213e;
-      color: #a0a0b0;
-      border: 1px solid #0f3460;
-      padding: 6px 14px;
-      border-radius: 6px;
-      font-size: 0.8rem;
-      cursor: pointer;
+      background: #16213e; color: #a0a0b0; border: 1px solid #0f3460;
+      padding: 6px 14px; border-radius: 6px; font-size: 0.8rem; cursor: pointer;
     }
     .viewer-controls button:hover { border-color: #e94560; color: #fff; }
     .viewer-controls button.active { border-color: #e94560; color: #e94560; }
-    .box-color-dot {
-      display: inline-block;
-      width: 12px;
-      height: 12px;
-      border-radius: 50%;
-      margin-right: 6px;
-      vertical-align: middle;
+
+    /* Cedar features callout */
+    .features {
+      display: flex; gap: 12px; margin-top: 12px; flex-wrap: wrap;
+    }
+    .feature-tag {
+      background: rgba(233,69,96,0.1); border: 1px solid rgba(233,69,96,0.2);
+      color: #e94560; padding: 4px 10px; border-radius: 20px; font-size: 0.75rem;
+      font-weight: 600; text-transform: uppercase; letter-spacing: 0.5px;
     }
   </style>
 </head>
 <body>
   <header>
-    <h1>🌿 Garden Box Calculator</h1>
-    <p>Cedar raised garden beds — materials, cost & 3D preview</p>
+    <h1>🌿 Garden Box Builder</h1>
+    <p>Design your custom cedar raised beds & get an instant quote</p>
+    <div class="features">
+      <span class="feature-tag">🪵 Western Red Cedar</span>
+      <span class="feature-tag">🔩 Built to Last</span>
+      <span class="feature-tag">📐 Custom Sizes</span>
+    </div>
   </header>
 
   <div class="container">
     <div class="left-col">
       <div class="panel">
-        <h2>📦 Boxes</h2>
+        <h2>📐 Design Your Boxes</h2>
         <div id="box-list"></div>
-        <button class="secondary" onclick="addBox()">+ Add Box</button>
+        <button class="secondary" onclick="addBox()">+ Add Another Box</button>
       </div>
 
-      <div class="panel pricing-section">
-        <h2>💰 Material Prices</h2>
+      <!-- Admin pricing panel (hidden, ?admin=true to show) -->
+      <div class="panel admin-section" id="admin-panel">
+        <h2>🔧 Pricing (Admin)</h2>
         <div class="price-input-row">
           <div class="field">
-            <label>Fence Picket (6')</label>
+            <label>Fence Picket Cost (6')</label>
             <input type="number" id="price-picket" value="3.50" step="0.01" min="0" onchange="calculate()">
           </div>
           <div class="field">
-            <label>2×4 S4S (8')</label>
+            <label>2×4 S4S Cost (8')</label>
             <input type="number" id="price-2x4" value="8.00" step="0.01" min="0" onchange="calculate()">
           </div>
         </div>
         <div class="price-input-row">
           <div class="field">
-            <label>Screws (per lb)</label>
+            <label>Screws Cost (per lb)</label>
             <input type="number" id="price-screws" value="8.00" step="0.01" min="0" onchange="calculate()">
           </div>
           <div class="field">
@@ -327,11 +238,25 @@
             <input type="number" id="screws-per-box" value="0.5" step="0.1" min="0" onchange="calculate()">
           </div>
         </div>
+        <div class="price-input-row">
+          <div class="field">
+            <label>Markup Multiplier</label>
+            <input type="number" id="markup" value="2.0" step="0.1" min="1" onchange="calculate()">
+          </div>
+          <div class="field">
+            <label>Labor per Box ($)</label>
+            <input type="number" id="labor-per-box" value="20.00" step="1" min="0" onchange="calculate()">
+          </div>
+        </div>
       </div>
 
       <div class="panel results" id="results-panel" style="display:none;">
-        <h2>📋 Materials & Cost</h2>
+        <h2>💰 Your Quote</h2>
         <div id="results-content"></div>
+        <div class="share-buttons">
+          <button onclick="copyBuildSheet()" id="copy-btn">📋 Copy Build Sheet</button>
+          <button onclick="shareBuildSheet()">📤 Share</button>
+        </div>
       </div>
     </div>
 
@@ -347,6 +272,8 @@
     </div>
   </div>
 
+  <div class="toast" id="toast"></div>
+
   <script type="importmap">
   {
     "imports": {
@@ -359,12 +286,18 @@
     import * as THREE from 'three';
     import { OrbitControls } from 'three/addons/controls/OrbitControls.js';
 
+    // ---- Admin mode ----
+    const isAdmin = new URLSearchParams(window.location.search).has('admin');
+    if (isAdmin) {
+      document.getElementById('admin-panel').classList.add('visible');
+    }
+
     // ---- Constants ----
-    const PICKET_WIDTH = 5.5;    // inches
-    const PICKET_THICKNESS = 0.625; // 5/8"
-    const PICKET_LENGTH = 72;    // 6 feet in inches
-    const POST_WIDTH = 1.5;      // actual 2x4 dimension
-    const POST_DEPTH = 3.5;      // actual 2x4 dimension
+    const PICKET_WIDTH = 5.5;
+    const PICKET_THICKNESS = 0.625;
+    const PICKET_LENGTH = 72;
+    const POST_WIDTH = 1.5;
+    const POST_DEPTH = 3.5;
 
     const BOX_COLORS = [
       0xd4a574, 0xc49a6c, 0xb8906a, 0xcfaa7a, 0xbf9060,
@@ -376,10 +309,17 @@
     let wireframeMode = false;
     let explodeMode = false;
 
-    // ---- Box State ----
     window.boxes = [
       { length: 72, width: 36, pickets: 3, qty: 1 }
     ];
+
+    // ---- Toast ----
+    function showToast(msg) {
+      const t = document.getElementById('toast');
+      t.textContent = msg;
+      t.classList.add('show');
+      setTimeout(() => t.classList.remove('show'), 2500);
+    }
 
     // ---- Init Three.js ----
     function initViewer() {
@@ -389,7 +329,6 @@
 
       scene = new THREE.Scene();
       scene.background = new THREE.Color(0x1a1a2e);
-
       camera = new THREE.PerspectiveCamera(45, w / h, 0.1, 10000);
       camera.position.set(120, 80, 120);
 
@@ -404,7 +343,6 @@
       controls.dampingFactor = 0.05;
       controls.maxPolarAngle = Math.PI / 2;
 
-      // Lights
       const ambient = new THREE.AmbientLight(0xffffff, 0.5);
       scene.add(ambient);
       const dir = new THREE.DirectionalLight(0xffffff, 0.8);
@@ -415,7 +353,6 @@
       dir2.position.set(-50, 80, -50);
       scene.add(dir2);
 
-      // Ground
       const groundGeo = new THREE.PlaneGeometry(1000, 1000);
       const groundMat = new THREE.MeshStandardMaterial({ color: 0x2d5a27, roughness: 0.9 });
       const ground = new THREE.Mesh(groundGeo, groundMat);
@@ -424,7 +361,6 @@
       ground.receiveShadow = true;
       scene.add(ground);
 
-      // Grid
       const grid = new THREE.GridHelper(200, 20, 0x3a7a34, 0x3a7a34);
       grid.position.y = -0.4;
       grid.material.opacity = 0.3;
@@ -448,7 +384,7 @@
       renderer.render(scene, camera);
     }
 
-    // ---- Build Box Geometry ----
+    // ---- Wood Texture ----
     function createWoodTexture(baseColor, isPost) {
       const canvas = document.createElement('canvas');
       const w = isPost ? 64 : 256;
@@ -456,63 +392,45 @@
       canvas.width = w;
       canvas.height = h;
       const ctx = canvas.getContext('2d');
-
       const c = new THREE.Color(baseColor);
-      const r = Math.floor(c.r * 255);
-      const g = Math.floor(c.g * 255);
-      const b = Math.floor(c.b * 255);
+      const r = Math.floor(c.r * 255), g = Math.floor(c.g * 255), b = Math.floor(c.b * 255);
 
-      // Base fill
       ctx.fillStyle = `rgb(${r},${g},${b})`;
       ctx.fillRect(0, 0, w, h);
 
-      // Wood grain lines along the length
       const grainCount = isPost ? 8 + Math.floor(Math.random() * 6) : 12 + Math.floor(Math.random() * 8);
       for (let i = 0; i < grainCount; i++) {
         const darkness = 0.88 + Math.random() * 0.08;
-        const gr = Math.floor(r * darkness);
-        const gg = Math.floor(g * darkness);
-        const gb = Math.floor(b * darkness);
-        ctx.strokeStyle = `rgba(${gr},${gg},${gb},${0.3 + Math.random() * 0.4})`;
+        ctx.strokeStyle = `rgba(${Math.floor(r*darkness)},${Math.floor(g*darkness)},${Math.floor(b*darkness)},${0.3 + Math.random() * 0.4})`;
         ctx.lineWidth = 0.5 + Math.random() * 1.5;
         ctx.beginPath();
         if (isPost) {
-          // Vertical grain for posts
           const x = Math.random() * w;
-          ctx.moveTo(x + (Math.random() - 0.5) * 3, 0);
-          for (let y = 0; y < h; y += 8) {
-            ctx.lineTo(x + (Math.random() - 0.5) * 4, y);
-          }
+          ctx.moveTo(x + (Math.random()-0.5)*3, 0);
+          for (let y = 0; y < h; y += 8) ctx.lineTo(x + (Math.random()-0.5)*4, y);
         } else {
-          // Horizontal grain for pickets
           const y = Math.random() * h;
-          ctx.moveTo(0, y + (Math.random() - 0.5) * 3);
-          for (let x = 0; x < w; x += 8) {
-            ctx.lineTo(x, y + (Math.random() - 0.5) * 4);
-          }
+          ctx.moveTo(0, y + (Math.random()-0.5)*3);
+          for (let x = 0; x < w; x += 8) ctx.lineTo(x, y + (Math.random()-0.5)*4);
         }
         ctx.stroke();
       }
 
-      // Occasional knot
       if (Math.random() > 0.6) {
-        const kx = w * 0.2 + Math.random() * w * 0.6;
-        const ky = h * 0.2 + Math.random() * h * 0.6;
-        const kr = 2 + Math.random() * 4;
+        const kx = w*0.2 + Math.random()*w*0.6, ky = h*0.2 + Math.random()*h*0.6, kr = 2 + Math.random()*4;
         const grad = ctx.createRadialGradient(kx, ky, 0, kx, ky, kr);
         grad.addColorStop(0, `rgba(${Math.floor(r*0.6)},${Math.floor(g*0.55)},${Math.floor(b*0.5)},0.6)`);
         grad.addColorStop(1, `rgba(${r},${g},${b},0)`);
         ctx.fillStyle = grad;
-        ctx.fillRect(kx - kr, ky - kr, kr * 2, kr * 2);
+        ctx.fillRect(kx-kr, ky-kr, kr*2, kr*2);
       }
 
-      // Subtle edge darkening for board separation
       if (!isPost) {
         const edgeGrad = ctx.createLinearGradient(0, 0, 0, h);
-        edgeGrad.addColorStop(0, `rgba(0,0,0,0.15)`);
-        edgeGrad.addColorStop(0.08, `rgba(0,0,0,0)`);
-        edgeGrad.addColorStop(0.92, `rgba(0,0,0,0)`);
-        edgeGrad.addColorStop(1, `rgba(0,0,0,0.15)`);
+        edgeGrad.addColorStop(0, 'rgba(0,0,0,0.15)');
+        edgeGrad.addColorStop(0.08, 'rgba(0,0,0,0)');
+        edgeGrad.addColorStop(0.92, 'rgba(0,0,0,0)');
+        edgeGrad.addColorStop(1, 'rgba(0,0,0,0.15)');
         ctx.fillStyle = edgeGrad;
         ctx.fillRect(0, 0, w, h);
       }
@@ -524,17 +442,13 @@
     }
 
     function createCedarMaterial(color, isPost) {
-      const map = createWoodTexture(color, isPost);
       return new THREE.MeshStandardMaterial({
-        map: map,
-        color: 0xffffff,
-        roughness: 0.85,
-        metalness: 0.0,
-        flatShading: false,
-        wireframe: wireframeMode
+        map: createWoodTexture(color, isPost),
+        color: 0xffffff, roughness: 0.85, metalness: 0.0, wireframe: wireframeMode
       });
     }
 
+    // ---- Build Box ----
     function buildBox(lengthIn, widthIn, numPickets, offsetX, offsetZ, colorIndex) {
       const group = new THREE.Group();
       const height = numPickets * PICKET_WIDTH;
@@ -542,91 +456,55 @@
       const postColor = new THREE.Color(baseColor).multiplyScalar(0.75).getHex();
       const explodeOffset = explodeMode ? 8 : 0;
 
-      const S = 1; // scale: 1 inch = 1 unit
-
-      // Corner posts (2x4, full height)
-      const postGeo = new THREE.BoxGeometry(POST_DEPTH * S, height * S, POST_WIDTH * S);
+      const postGeo = new THREE.BoxGeometry(POST_DEPTH, height, POST_WIDTH);
       const postMat = createCedarMaterial(postColor, true);
-      const corners = [
-        [0, 0],
-        [lengthIn - POST_DEPTH, 0],
-        [0, widthIn - POST_WIDTH],
-        [lengthIn - POST_DEPTH, widthIn - POST_WIDTH]
-      ];
-      corners.forEach(([x, z], i) => {
+      [[0,0],[lengthIn-POST_DEPTH,0],[0,widthIn-POST_WIDTH],[lengthIn-POST_DEPTH,widthIn-POST_WIDTH]].forEach(([x,z], i) => {
         const post = new THREE.Mesh(postGeo, postMat);
-        const ex = explodeMode ? (i % 2 === 0 ? -explodeOffset : explodeOffset) : 0;
-        const ez = explodeMode ? (i < 2 ? -explodeOffset : explodeOffset) : 0;
         post.position.set(
-          x + POST_DEPTH / 2 + ex,
-          height / 2,
-          z + POST_WIDTH / 2 + ez
+          x + POST_DEPTH/2 + (explodeMode ? (i%2===0 ? -explodeOffset : explodeOffset) : 0),
+          height/2,
+          z + POST_WIDTH/2 + (explodeMode ? (i<2 ? -explodeOffset : explodeOffset) : 0)
         );
         post.castShadow = true;
         group.add(post);
       });
 
-      // Middle support posts on long sides (if length > 48")
       if (lengthIn > 48) {
-        const midX = lengthIn / 2 - POST_DEPTH / 2;
-        const midPostGeo = new THREE.BoxGeometry(POST_DEPTH * S, height * S, POST_WIDTH * S);
-        const midPostMat = createCedarMaterial(postColor, true);
-        [0, widthIn - POST_WIDTH].forEach((z, i) => {
-          const post = new THREE.Mesh(midPostGeo, midPostMat);
-          const ez = explodeMode ? (i === 0 ? -explodeOffset : explodeOffset) : 0;
-          post.position.set(midX + POST_DEPTH / 2, height / 2, z + POST_WIDTH / 2 + ez);
+        const midX = lengthIn/2 - POST_DEPTH/2;
+        const midPostGeo = new THREE.BoxGeometry(POST_DEPTH, height, POST_WIDTH);
+        [0, widthIn-POST_WIDTH].forEach((z, i) => {
+          const post = new THREE.Mesh(midPostGeo, createCedarMaterial(postColor, true));
+          post.position.set(midX + POST_DEPTH/2, height/2, z + POST_WIDTH/2 + (explodeMode ? (i===0 ? -explodeOffset : explodeOffset) : 0));
           post.castShadow = true;
           group.add(post);
         });
       }
 
-      // Pickets for long sides (front and back)
       for (let row = 0; row < numPickets; row++) {
-        const y = row * PICKET_WIDTH + PICKET_WIDTH / 2;
-        const picketLen = lengthIn;
-        const geo = new THREE.BoxGeometry(picketLen * S, PICKET_WIDTH * S, PICKET_THICKNESS * S);
-
-        // Vary color slightly per picket
-        const variation = 0.95 + Math.random() * 0.1;
+        const y = row * PICKET_WIDTH + PICKET_WIDTH/2;
+        const variation = 0.95 + Math.random()*0.1;
         const pColor = new THREE.Color(baseColor).multiplyScalar(variation).getHex();
-        const mat = createCedarMaterial(pColor, false);
 
-        // Front
-        const front = new THREE.Mesh(geo, mat);
-        const fez = explodeMode ? -explodeOffset : 0;
-        front.position.set(picketLen / 2, y, -PICKET_THICKNESS / 2 + fez);
+        const longGeo = new THREE.BoxGeometry(lengthIn, PICKET_WIDTH, PICKET_THICKNESS);
+        const front = new THREE.Mesh(longGeo, createCedarMaterial(pColor, false));
+        front.position.set(lengthIn/2, y, -PICKET_THICKNESS/2 + (explodeMode ? -explodeOffset : 0));
         front.castShadow = true;
         group.add(front);
 
-        // Back
-        const back = new THREE.Mesh(geo, mat.clone());
-        const bez = explodeMode ? explodeOffset : 0;
-        back.position.set(picketLen / 2, y, widthIn + PICKET_THICKNESS / 2 + bez);
+        const back = new THREE.Mesh(longGeo, createCedarMaterial(pColor, false));
+        back.position.set(lengthIn/2, y, widthIn + PICKET_THICKNESS/2 + (explodeMode ? explodeOffset : 0));
         back.castShadow = true;
         group.add(back);
-      }
 
-      // Pickets for short sides (left and right)
-      for (let row = 0; row < numPickets; row++) {
-        const y = row * PICKET_WIDTH + PICKET_WIDTH / 2;
-        const picketLen = widthIn;
-        const geo = new THREE.BoxGeometry(PICKET_THICKNESS * S, PICKET_WIDTH * S, picketLen * S);
-
-        const variation = 0.95 + Math.random() * 0.1;
-        const pColor = new THREE.Color(baseColor).multiplyScalar(variation).getHex();
-        const mat = createCedarMaterial(pColor, false);
-
-        // Left
-        const left = new THREE.Mesh(geo, mat);
-        const lex = explodeMode ? -explodeOffset : 0;
-        left.position.set(-PICKET_THICKNESS / 2 + lex, y, picketLen / 2);
+        const shortGeo = new THREE.BoxGeometry(PICKET_THICKNESS, PICKET_WIDTH, widthIn);
+        const pColor2 = new THREE.Color(baseColor).multiplyScalar(0.95 + Math.random()*0.1).getHex();
+        const left = new THREE.Mesh(shortGeo, createCedarMaterial(pColor2, false));
+        left.position.set(-PICKET_THICKNESS/2 + (explodeMode ? -explodeOffset : 0), y, widthIn/2);
         left.castShadow = true;
         group.add(left);
 
-        // Right
-        const right = new THREE.Mesh(geo, mat.clone());
-        const rex = explodeMode ? explodeOffset : 0;
-        right.position.set(lengthIn + PICKET_THICKNESS / 2 + rex, y, picketLen / 2);
+        const right = new THREE.Mesh(shortGeo, createCedarMaterial(pColor2, false));
+        right.position.set(lengthIn + PICKET_THICKNESS/2 + (explodeMode ? explodeOffset : 0), y, widthIn/2);
         right.castShadow = true;
         group.add(right);
       }
@@ -635,70 +513,41 @@
       return group;
     }
 
+    // ---- Scene Layout ----
     function rebuildScene() {
       boxMeshes.forEach(m => scene.remove(m));
       boxMeshes = [];
-
       const allBoxes = [];
-      window.boxes.forEach((box) => {
-        for (let q = 0; q < box.qty; q++) {
-          allBoxes.push({ ...box });
-        }
-      });
+      window.boxes.forEach(box => { for (let q = 0; q < box.qty; q++) allBoxes.push({...box}); });
+      if (!allBoxes.length) return;
 
-      if (allBoxes.length === 0) return;
-
-      // Sort largest to smallest for tight packing
-      const sorted = allBoxes.map((b, i) => ({ ...b, origIdx: i }));
-      sorted.sort((a, b) => (b.length * b.width) - (a.length * a.width));
-
-      // Simple row-based bin packing
+      const sorted = [...allBoxes].sort((a,b) => (b.length*b.width) - (a.length*a.width));
       const gap = 12;
-      const placed = [];
+      const rows = [];
 
-      // Place boxes row by row, starting new row when next box doesn't fit nicely
-      const rows = []; // each row: { z, depth, items: [{box, x}] }
-
-      sorted.forEach((box) => {
-        let bestRow = -1;
-        let bestX = Infinity;
-
-        // Try to fit in existing row - find row where it wastes least space
+      sorted.forEach(box => {
+        let bestRow = -1, bestX = Infinity;
         for (let r = 0; r < rows.length; r++) {
-          const row = rows[r];
-          const lastItem = row.items[row.items.length - 1];
-          const nextX = lastItem ? lastItem.x + lastItem.box.length + gap : 0;
-          if (nextX + box.length < bestX + box.length * 2) {
-            bestRow = r;
-            bestX = nextX;
-          }
+          const last = rows[r].items[rows[r].items.length-1];
+          const nextX = last ? last.x + last.box.length + gap : 0;
+          if (nextX + box.length < bestX + box.length*2) { bestRow = r; bestX = nextX; }
         }
-
-        // Start new row if no rows yet or current rows are getting wide
         const maxWidth = sorted[0].length * 3 + gap * 2;
         if (bestRow === -1 || bestX + box.length > maxWidth) {
-          const z = rows.length === 0 ? 0 : rows[rows.length - 1].z + rows[rows.length - 1].depth + gap;
-          rows.push({ z, depth: box.width, items: [{ box, x: 0 }] });
+          rows.push({ z: 0, depth: box.width, items: [{ box, x: 0 }] });
         } else {
-          const row = rows[bestRow];
-          row.items.push({ box, x: bestX });
-          row.depth = Math.max(row.depth, box.width);
+          rows[bestRow].items.push({ box, x: bestX });
+          rows[bestRow].depth = Math.max(rows[bestRow].depth, box.width);
         }
       });
 
-      // Recalculate z positions based on actual row depths
       let currentZ = 0;
-      rows.forEach(row => {
-        row.z = currentZ;
-        currentZ += row.depth + gap;
-      });
+      rows.forEach(row => { row.z = currentZ; currentZ += row.depth + gap; });
 
-      // Build meshes
       let colorIdx = 0;
       rows.forEach(row => {
         row.items.forEach(item => {
-          // Center box within row depth
-          const zOffset = row.z + (row.depth - item.box.width) / 2;
+          const zOffset = row.z + (row.depth - item.box.width)/2;
           const group = buildBox(item.box.length, item.box.width, item.box.pickets, item.x, zOffset, colorIdx);
           scene.add(group);
           boxMeshes.push(group);
@@ -707,110 +556,141 @@
       });
     }
 
-    window.resetCamera = function() {
-      camera.position.set(120, 80, 120);
-      controls.target.set(0, 10, 0);
-      controls.update();
-    };
-
-    window.toggleWireframe = function() {
-      wireframeMode = !wireframeMode;
-      document.getElementById('wireframe-btn').classList.toggle('active', wireframeMode);
-      rebuildScene();
-    };
-
-    window.toggleExplode = function() {
-      explodeMode = !explodeMode;
-      document.getElementById('explode-btn').classList.toggle('active', explodeMode);
-      rebuildScene();
-    };
+    window.resetCamera = function() { camera.position.set(120, 80, 120); controls.target.set(0, 10, 0); controls.update(); };
+    window.toggleWireframe = function() { wireframeMode = !wireframeMode; document.getElementById('wireframe-btn').classList.toggle('active', wireframeMode); rebuildScene(); };
+    window.toggleExplode = function() { explodeMode = !explodeMode; document.getElementById('explode-btn').classList.toggle('active', explodeMode); rebuildScene(); };
 
     // ---- Material Calculations ----
     function calculateMaterials(box) {
       const height = box.pickets * PICKET_WIDTH;
-
-      // Pickets needed for long sides
-      // Each picket is 6' (72") long. If box length <= 72", one picket per row per side.
-      // If longer, need multiple pickets per row.
       const picketsPerRowLong = Math.ceil(box.length / PICKET_LENGTH);
       const longSidePickets = picketsPerRowLong * box.pickets * 2;
-
-      // Pickets for short sides
       const picketsPerRowShort = Math.ceil(box.width / PICKET_LENGTH);
       const shortSidePickets = picketsPerRowShort * box.pickets * 2;
-
       const totalPickets = longSidePickets + shortSidePickets;
-
-      // 2x4 posts: 4 corners always. Middle supports on long sides if > 48"
       const middlePosts = box.length > 48 ? 2 : 0;
       const totalPosts = 4 + middlePosts;
-
-      // Each post is cut to height from 8' (96") 2x4s
       const postsPerBoard = Math.floor(96 / height);
       const boardsNeeded = Math.ceil(totalPosts / postsPerBoard);
-
-      return {
-        pickets: totalPickets,
-        posts: totalPosts,
-        postsPerBoard,
-        boards2x4: boardsNeeded,
-        height
-      };
+      return { pickets: totalPickets, posts: totalPosts, postsPerBoard, boards2x4: boardsNeeded, height };
     }
 
+    // ---- Formatting helpers ----
+    function fmtDim(box) {
+      const h = box.pickets * PICKET_WIDTH;
+      const lFt = box.length / 12, wFt = box.width / 12, hIn = h;
+      return `${lFt % 1 === 0 ? lFt + "'" : box.length + '"'} × ${wFt % 1 === 0 ? wFt + "'" : box.width + '"'} × ${hIn}"`;
+    }
+
+    // ---- Calculate & Render Quote ----
     window.calculate = function() {
       const pricePicket = parseFloat(document.getElementById('price-picket').value) || 0;
       const price2x4 = parseFloat(document.getElementById('price-2x4').value) || 0;
       const priceScrews = parseFloat(document.getElementById('price-screws').value) || 0;
       const screwsPerBox = parseFloat(document.getElementById('screws-per-box').value) || 0;
+      const markup = parseFloat(document.getElementById('markup').value) || 2.0;
+      const laborPerBox = parseFloat(document.getElementById('labor-per-box').value) || 0;
 
       let html = '';
-      let grandTotalPickets = 0;
-      let grandTotalBoards = 0;
-      let grandTotalCost = 0;
-      let grandTotalScrewCost = 0;
+      let grandTotal = 0;
 
       window.boxes.forEach((box, i) => {
         const m = calculateMaterials(box);
-        const qtyPickets = m.pickets * box.qty;
-        const qtyBoards = m.boards2x4 * box.qty;
-        const picketCost = qtyPickets * pricePicket;
-        const boardCost = qtyBoards * price2x4;
-        const screwCost = priceScrews * screwsPerBox * box.qty;
-        const boxTotal = picketCost + boardCost + screwCost;
+        const materialCost = (m.pickets * pricePicket + m.boards2x4 * price2x4 + priceScrews * screwsPerBox);
+        const boxPrice = (materialCost * markup + laborPerBox) * box.qty;
+        const perUnit = materialCost * markup + laborPerBox;
+        grandTotal += boxPrice;
 
-        grandTotalPickets += qtyPickets;
-        grandTotalBoards += qtyBoards;
-        grandTotalCost += boxTotal;
-        grandTotalScrewCost += screwCost;
-
-        const dimLabel = `${box.length}"×${box.width}"×${m.height}" (${box.pickets} high)`;
+        const dimLabel = fmtDim(box);
         const color = BOX_COLORS[i % BOX_COLORS.length];
         const colorHex = '#' + color.toString(16).padStart(6, '0');
 
         html += `<div class="result-group">
-          <h3><span class="box-color-dot" style="background:${colorHex}"></span>Box ${i + 1}: ${dimLabel} × ${box.qty}</h3>
-          <div class="result-line"><span class="label">Fence pickets (6')</span><span class="value">${qtyPickets} × $${pricePicket.toFixed(2)} = $${picketCost.toFixed(2)}</span></div>
-          <div class="result-line"><span class="label">2×4 S4S (8')</span><span class="value">${qtyBoards} × $${price2x4.toFixed(2)} = $${boardCost.toFixed(2)}</span></div>
-          <div class="result-line"><span class="label">Posts per box: ${m.totalPosts || m.posts} (${m.postsPerBoard}/board)</span><span class="value"></span></div>
-          <div class="result-line"><span class="label">Screws</span><span class="value">$${screwCost.toFixed(2)}</span></div>
-          <div class="result-line" style="border-top:1px solid #0f3460;padding-top:6px;margin-top:4px"><span class="label" style="color:#fff">Subtotal</span><span class="value">$${boxTotal.toFixed(2)}</span></div>
+          <h3><span class="box-color-dot" style="background:${colorHex}"></span>${dimLabel}${box.qty > 1 ? ` × ${box.qty}` : ''}</h3>
+          <div class="result-line"><span class="label">Cedar fence pickets</span><span class="value">${box.pickets} boards tall</span></div>
+          <div class="result-line"><span class="label">Construction</span><span class="value">4 corner posts${m.posts > 4 ? ' + center supports' : ''}</span></div>
+          <div class="result-line" style="border-top:1px solid #0f3460;padding-top:6px;margin-top:4px">
+            <span class="label" style="color:#fff">${box.qty > 1 ? `$${perUnit.toFixed(0)} each × ${box.qty}` : 'Price'}</span>
+            <span class="value" style="color:#e94560">$${boxPrice.toFixed(0)}</span>
+          </div>
         </div>`;
       });
 
-      html += `<div class="result-group">
-        <h3>🛒 Shopping List</h3>
-        <div class="result-line"><span class="label">Cedar fence pickets (6')</span><span class="value">${grandTotalPickets}</span></div>
-        <div class="result-line"><span class="label">Cedar 2×4 S4S (8')</span><span class="value">${grandTotalBoards}</span></div>
-        <div class="result-line"><span class="label">Deck screws</span><span class="value">${(screwsPerBox * window.boxes.reduce((s, b) => s + b.qty, 0)).toFixed(1)} lbs</span></div>
-      </div>`;
-
-      html += `<div class="total-line"><span class="label">Total Material Cost</span><span class="value">$${grandTotalCost.toFixed(2)}</span></div>`;
+      html += `<div class="total-line"><span class="label">Estimated Total</span><span class="value">$${grandTotal.toFixed(0)}</span></div>`;
+      html += `<p style="font-size:0.75rem;color:#666;margin-top:8px;">All boxes built with western red cedar. Price may vary based on current lumber costs. Contact us to confirm your order.</p>`;
 
       document.getElementById('results-content').innerHTML = html;
       document.getElementById('results-panel').style.display = 'block';
-
       rebuildScene();
+    };
+
+    // ---- Build Sheet Text ----
+    window.generateBuildSheet = function() {
+      const date = new Date().toLocaleDateString();
+      let lines = [];
+      lines.push('🌿 GARDEN BOX BUILD SHEET');
+      lines.push(`Date: ${date}`);
+      lines.push('─'.repeat(30));
+      lines.push('');
+
+      const markup = parseFloat(document.getElementById('markup').value) || 2.0;
+      const laborPerBox = parseFloat(document.getElementById('labor-per-box').value) || 0;
+      const pricePicket = parseFloat(document.getElementById('price-picket').value) || 0;
+      const price2x4 = parseFloat(document.getElementById('price-2x4').value) || 0;
+      const priceScrews = parseFloat(document.getElementById('price-screws').value) || 0;
+      const screwsPerBox = parseFloat(document.getElementById('screws-per-box').value) || 0;
+
+      let grandTotal = 0;
+      let totalBoxes = 0;
+
+      window.boxes.forEach((box, i) => {
+        const m = calculateMaterials(box);
+        const materialCost = m.pickets * pricePicket + m.boards2x4 * price2x4 + priceScrews * screwsPerBox;
+        const perUnit = materialCost * markup + laborPerBox;
+        const boxPrice = perUnit * box.qty;
+        grandTotal += boxPrice;
+        totalBoxes += box.qty;
+
+        const dim = fmtDim(box);
+        lines.push(`📦 Box ${i + 1}: ${dim}`);
+        lines.push(`   ${box.pickets} boards tall, cedar construction`);
+        if (box.qty > 1) {
+          lines.push(`   Qty: ${box.qty} × $${perUnit.toFixed(0)} = $${boxPrice.toFixed(0)}`);
+        } else {
+          lines.push(`   Price: $${boxPrice.toFixed(0)}`);
+        }
+        lines.push('');
+      });
+
+      lines.push('─'.repeat(30));
+      lines.push(`Total: ${totalBoxes} box${totalBoxes > 1 ? 'es' : ''} — $${grandTotal.toFixed(0)}`);
+      lines.push('');
+      lines.push('Western red cedar • Built to order');
+      lines.push('');
+      lines.push(`Preview: ${window.location.href}`);
+
+      return lines.join('\n');
+    };
+
+    window.copyBuildSheet = function() {
+      const text = generateBuildSheet();
+      navigator.clipboard.writeText(text).then(() => {
+        const btn = document.getElementById('copy-btn');
+        btn.classList.add('copied');
+        btn.textContent = '✅ Copied!';
+        showToast('Build sheet copied to clipboard!');
+        setTimeout(() => { btn.classList.remove('copied'); btn.textContent = '📋 Copy Build Sheet'; }, 2500);
+      });
+    };
+
+    window.shareBuildSheet = function() {
+      const text = generateBuildSheet();
+      if (navigator.share) {
+        navigator.share({ title: 'Garden Box Build Sheet', text: text }).catch(() => {});
+      } else {
+        // Fallback: copy
+        navigator.clipboard.writeText(text).then(() => showToast('Build sheet copied to clipboard!'));
+      }
     };
 
     // ---- UI: Box List ----
@@ -842,8 +722,8 @@
     function renderBoxList() {
       const list = document.getElementById('box-list');
       list.innerHTML = window.boxes.map((box, i) => {
-        const h = box.pickets * 5.5;
-        const summary = `${box.length}"×${box.width}"×${h}" — qty ${box.qty}`;
+        const dim = fmtDim(box);
+        const summary = `${dim} — qty ${box.qty}`;
         return `
         <div class="box-entry" data-box-idx="${i}">
           <div class="box-header" onclick="toggleBox(${i})">
@@ -859,21 +739,21 @@
           <div class="box-body">
             <div class="field-row">
               <div class="field">
-                <label>Length (in)</label>
+                <label>Length (inches)</label>
                 <input type="number" value="${box.length}" min="12" step="1" onchange="updateBox(${i},'length',this.value)">
               </div>
               <div class="field">
-                <label>Width (in)</label>
+                <label>Width (inches)</label>
                 <input type="number" value="${box.width}" min="12" step="1" onchange="updateBox(${i},'width',this.value)">
               </div>
               <div class="field">
-                <label>Pickets High</label>
+                <label>Height (boards tall)</label>
                 <input type="number" value="${box.pickets}" min="1" max="6" step="1" onchange="updateBox(${i},'pickets',this.value)">
               </div>
             </div>
             <div class="qty-row">
               <div class="field">
-                <label>Quantity</label>
+                <label>How many?</label>
                 <input type="number" value="${box.qty}" min="1" step="1" onchange="updateBox(${i},'qty',this.value)">
               </div>
             </div>
